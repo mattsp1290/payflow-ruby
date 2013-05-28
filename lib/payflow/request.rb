@@ -14,25 +14,24 @@ module Payflow
   }
 
   TRANSACTIONS = {
-    :sale           => "Sale",
-    :authorization  => "Authorization",
-    :capture        => "Capture",
-    :void           => "Void",
-    :credit         => "Credit"
+    :sale           => "S",
+    :authorization  => "A",
+    :capture        => "D",
+    :void           => "V",
+    :credit         => "C"
   }
 
   DEFAULT_CURRENCY = "USD"
 
-  XMLNS = 'http://www.paypal.com/XMLPay'
+  SWIPED_ECR_HOST       = "MAGT"
+  MAGTEK_CARD_TYPE      = 1
+  REGISTERED_BY         = "PayPal"
+  ENCRYPTION_BLOCK_TYPE = 1
 
-
-  SWIPEDECRHOST       = "MAGT"
-  MAGTEKCARDTYPE      = 1
-  REGISTEREDBY        = "PayPal"
-  ENCRYPTIONBLOCKTYPE = 1
+  CREDIT_CARD_TENDER  = 'C'
 
   class Request
-    attr_accessor :xml
+    attr_accessor :pairs
 
     TIMEOUT = 60
 
@@ -41,7 +40,8 @@ module Payflow
 
     def initialize(action, money, credit_card_or_reference, options = {})
       @options = options
-      self.xml = case action
+      
+      case action
       when :sale, :authorize
         build_sale_or_authorization_request(action, money, credit_card_or_reference, options)
       when :capture
@@ -60,91 +60,28 @@ module Payflow
     end
 
     def build_reference_sale_or_authorization_request(action, money, reference, options)
-      xml = Builder::XmlMarkup.new
-      xml.tag! TRANSACTIONS[action] do
-        xml.tag! 'PayData' do
-          xml.tag! 'Invoice' do
-            # Fields accepted by PayFlow and recommended to be provided even for Reference Transaction, per Payflow docs.
-            xml.tag! 'CustIP', options[:ip] unless options[:ip].blank?
-            xml.tag! 'InvNum', options[:order_id].to_s.gsub(/[^\w.]/, '') unless options[:order_id].blank?
-            xml.tag! 'Description', options[:description] unless options[:description].blank?
-            xml.tag! 'Comment', options[:comment] unless options[:comment].blank?
-            xml.tag!('ExtData', 'Name'=> 'COMMENT2', 'Value'=> options[:comment2]) unless options[:comment2].blank?
-            xml.tag! 'TaxAmt', options[:taxamt] unless options[:taxamt].blank?
-            xml.tag! 'FreightAmt', options[:freightamt] unless options[:freightamt].blank?
-            xml.tag! 'DutyAmt', options[:dutyamt] unless options[:dutyamt].blank?
-            xml.tag! 'DiscountAmt', options[:discountamt] unless options[:discountamt].blank?
-
-            billing_address = options[:billing_address] || options[:address]
-            add_address(xml, 'BillTo', billing_address, options) if billing_address
-            add_address(xml, 'ShipTo', options[:shipping_address],options) if options[:shipping_address]
-
-            xml.tag! 'TotalAmt', money, 'Currency' => options[:currency] || DEFAULT_CURRENCY
-          end
-          xml.tag! 'Tender' do
-            xml.tag! 'Card' do
-              xml.tag! 'ExtData', 'Name' => 'ORIGID', 'Value' =>  reference
-            end
-          end
-        end
-      end
-      xml.target!
+      self.pairs  = initial_pairs(action, money)
+      pairs.pnref = reference
     end
 
     def build_credit_card_request(action, money, credit_card, options)
-      xml = Builder::XmlMarkup.new
-      xml.tag! TRANSACTIONS[action] do
-        xml.tag! 'PayData' do
-          xml.tag! 'Invoice' do
-            xml.tag! 'CustIP', options[:ip] unless options[:ip].blank?
-            xml.tag! 'InvNum', options[:order_id].to_s.gsub(/[^\w.]/, '') unless options[:order_id].blank?
-            xml.tag! 'Description', options[:description] unless options[:description].blank?
-            # Comment and Comment2 will show up in manager.paypal.com as Comment1 and Comment2
-            xml.tag! 'Comment', options[:comment] unless options[:comment].blank?
-            xml.tag!('ExtData', 'Name'=> 'COMMENT2', 'Value'=> options[:comment2]) unless options[:comment2].blank?
-            xml.tag! 'TaxAmt', options[:taxamt] unless options[:taxamt].blank?
-            xml.tag! 'FreightAmt', options[:freightamt] unless options[:freightamt].blank?
-            xml.tag! 'DutyAmt', options[:dutyamt] unless options[:dutyamt].blank?
-            xml.tag! 'DiscountAmt', options[:discountamt] unless options[:discountamt].blank?
-
-            billing_address = options[:billing_address] || options[:address]
-            add_address(xml, 'BillTo', billing_address, options) if billing_address
-            add_address(xml, 'ShipTo', options[:shipping_address], options) if options[:shipping_address]
-
-            xml.tag! 'TotalAmt', money, 'Currency' => options[:currency] || DEFAULT_CURRENCY
-          end
-
-          xml.tag! 'Tender' do
-            add_credit_card(xml, credit_card)
-          end
-        end
-      end
-      xml.target!
+      self.pairs = initial_pairs(action, money)
+      add_credit_card!(credit_card)
     end
 
     def build_reference_request(action, money, authorization, options)
-      xml = Builder::XmlMarkup.new
-      xml.tag! TRANSACTIONS[action] do
-        xml.tag! 'PNRef', authorization
-
-        unless money.nil?
-          xml.tag! 'Invoice' do
-            xml.tag!('TotalAmt', money, 'Currency' => options[:currency] || DEFAULT_CURRENCY)
-            xml.tag!('Description', options[:description]) unless options[:description].blank?
-            xml.tag!('Comment', options[:comment]) unless options[:comment].blank?
-            xml.tag!('ExtData', 'Name'=> 'COMMENT2', 'Value'=> options[:comment2]) unless options[:comment2].blank?
-          end
-        end
-      end
-
-      xml.target!
+      self.pairs  = initial_pairs(action, money)
+      pairs.pnref = authorization
     end
 
-    def add_credit_card(xml, credit_card)
+    def add_credit_card!(credit_card)
+      pairs[:tender]    = CREDIT_CARD_TENDER
+      pairs[:card_type] = credit_card_type(credit_card)
+
       if credit_card.encrypted?
-        add_encrypted_credit_card(xml, credit_card)
+        add_encrypted_credit_card!(credit_card)
       else
-        add_keyed_credit_card(xml, credit_card)
+        add_keyed_credit_card!(credit_card)
       end
     end
 
@@ -161,48 +98,29 @@ module Payflow
       "#{year}#{month}"
     end
 
-    def add_address(xml, tag, address, options)
-      return if address.nil?
-      xml.tag! tag do
-        xml.tag! 'FirstName', address[:first_name] unless address[:first_name].blank?
-        xml.tag! 'LastName', address[:last_name] unless address[:last_name].blank?
-        xml.tag! 'EMail', options[:email] unless options[:email].blank?
-        xml.tag! 'Phone', address[:phone] unless address[:phone].blank?
-        xml.tag! 'CustCode', options[:customer] if !options[:customer].blank? && tag == 'BillTo'
-        xml.tag! 'PONum', options[:po_number] if !options[:po_number].blank? && tag == 'BillTo'
-
-        xml.tag! 'Address' do
-          xml.tag! 'Street', address[:address1] unless address[:address1].blank?
-          xml.tag! 'City', address[:city] unless address[:city].blank?
-          xml.tag! 'State', address[:state].blank? ? "N/A" : address[:state]
-          xml.tag! 'Country', address[:country] unless address[:country].blank?
-          xml.tag! 'Zip', address[:zip] unless address[:zip].blank?
-        end
-      end
-    end
-
     def commit(options = {})
-      xml_body = build_request(xml)
+      nvp_body = build_request_body
 
       puts "------- REQUEST ------------------"
-      puts xml_body
+      puts nvp_body
       puts "-------------------------"
 
       response = connection.post do |request|
-        request.headers["Content-Type"] = "text/xml"
+        request.headers["Content-Type"] = "text/name value"
         request.headers["X-VPS-CLIENT-TIMEOUT"] = TIMEOUT.to_s
         request.headers["X-VPS-VIT-Integration-Product"] = "Payflow Gem"
         request.headers["X-VPS-VIT-Runtime-Version"] = RUBY_VERSION
         request.headers["Host"] = test? ? TEST_HOST : LIVE_HOST
         request.headers["X-VPS-REQUEST-ID"] = SecureRandom.base64(20)
-        request.body = xml_body
+        request.body = nvp_body
+        request.body = "TRXTYPE=A&TENDER=C&VENDOR=bypassb&USER=bypassb&PARTNER=PayPal&PWD[11]=pwBypass15!&VERBOSITY=HIGH&CARDTYPE=1&SWIPEDECRHOST=MAGT&ENCTRACK2=5600EE18B9AA552B4BBF79B7DB6EB203A402858ED3D1D99A17FF746B46FF819A0B7A07FB1B54539C&AMT=11.00&ENCMP=63456534653465346&KSN=9010980B068EB5000009&MPSTATUS=000002&ENCRYPTIONBLOCKTYPE=1&REGISTEREDBY=PayPal&MAGTEKCARDTYPE=1"#&DEVICESN=73A6EB0218000D00"
       end
 
       Payflow::Response.new(response)
     end
 
     def test?
-      return false
+      return true
     end
 
     private
@@ -218,63 +136,46 @@ module Payflow
         end
       end
 
-      def add_keyed_credit_card(xml, credit_card)
-        xml.tag! 'Card' do
-          xml.tag! 'CardType', credit_card_type(credit_card)
-          xml.tag! 'CardNum', credit_card.number
-          xml.tag! 'ExpDate', expdate(credit_card)
-          xml.tag! 'NameOnCard', credit_card.first_name
-          xml.tag! 'CVNum', credit_card.verification_value if credit_card.verification_value?
-          xml.tag! 'ExtData', 'Name' => 'LASTNAME', 'Value' =>  credit_card.last_name
-        end
+      def initial_pairs(action, money)
+        OpenStruct.new(
+          amt: money,
+          trxtype: TRANSACTIONS[action]
+        )
       end
 
-      def add_encrypted_credit_card(xml, credit_card)
-        xml.tag! 'Card' do
-          xml.tag! 'CardType', credit_card_type(credit_card)
-          xml.tag! 'ExpDate', expdate(credit_card)
-          xml.tag! 'NameOnCard', credit_card.first_name
+      def add_keyed_credit_card!(credit_card)
+        pairs.acct    = credit_card.number
+        pairs.expdate = expdate(credit_card)
+        pairs.cvv2    = credit_card.verification_value if credit_card.verification_value?
 
-          xml.tag! 'ExtData', 'Name' => 'LASTNAME', 'Value' =>  credit_card.last_name
-          xml.tag! 'ExtData', 'Name' => 'ENCTRACK2', 'Value' => credit_card.track2
-          xml.tag! 'ExtData', 'Name' => 'ENCMP', 'Value' => credit_card.mp
-          xml.tag! 'ExtData', 'Name' => 'KSN', 'Value' => credit_card.ksn
-          xml.tag! 'ExtData', 'Name' => 'MPSTATUS', 'Value' => credit_card.mpstatus
-          xml.tag! 'ExtData', 'Name' => "DEVICESN", 'Value' => credit_card.device_sn
-          xml.tag! 'ExtData', 'Name' => "SWIPEDECRHOST", 'Value' => SWIPEDECRHOST
-          xml.tag! 'ExtData', 'Name' => "MAGTEKCARDTYPE", 'Value' => MAGTEKCARDTYPE
-          xml.tag! 'ExtData', 'Name' => "ENCRYPTIONBLOCKTYPE", 'Value' => ENCRYPTIONBLOCKTYPE
-          xml.tag! 'ExtData', 'Name' => "REGISTEREDBY", 'Value' => REGISTEREDBY
-        end
+        pairs
       end
 
-      def build_request(body, options = {})
-        xml = Builder::XmlMarkup.new
-        xml.instruct!
+      def add_encrypted_credit_card!(credit_card)
+        pairs.swiped_ecr_host       = SWIPED_ECR_HOST
+        pairs.enctrack2             = credit_card.track2
+        pairs.encmp                 = credit_card.mp
+        pairs.devicesn              = credit_card.device_sn
+        pairs.mpstatus              = credit_card.mpstatus
+        pairs.encryption_block_type = ENCRYPTION_BLOCK_TYPE
+        pairs.registered_by         = REGISTERED_BY
+        pairs.ksn                   = credit_card.ksn
+        pairs.magtek_card_type      = MAGTEK_CARD_TYPE
+      end
 
-        xml.tag! 'XMLPayRequest', 'Timeout' => TIMEOUT.to_s, 'version' => "2.1", "xmlns" => XMLNS do
-          xml.tag! 'RequestData' do
-            xml.tag! 'Vendor', @options[:login]
-            xml.tag! 'Partner', @options[:partner]
-            if options[:request_type] == :recurring
-              xml << body
-            else
-              xml.tag! 'Transactions' do
-                xml.tag! 'Transaction', 'CustRef' => options[:customer] do
-                  xml.tag! 'Verbosity', 'MEDIUM'
-                  xml << body
-                end
-              end
-            end
-          end
-          xml.tag! 'RequestAuth' do
-            xml.tag! 'UserPass' do
-              xml.tag! 'User', !@options[:user].blank? ? @options[:user] : @options[:login]
-              xml.tag! 'Password', @options[:password]
-            end
-          end
-        end
-        xml.target!
+      def add_authorization!
+        pairs.vendor   = @options[:login]
+        pairs.partner  = @options[:partner]
+        pairs.pwd      = @options[:password]
+        pairs.user     = @options[:user].blank? ? @options[:user] : @options[:login]
+      end
+
+      def build_request_body
+        add_authorization!
+
+        pairs.to_h.map{|key, value|
+          "#{key.to_s.upcase}[#{value.to_s.length}]=#{value}" 
+        }.join("&")
       end
   end
 end
