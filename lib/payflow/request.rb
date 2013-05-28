@@ -53,16 +53,10 @@ module Payflow
 
     def build_sale_or_authorization_request(action, money, credit_card_or_reference, options)
       if credit_card_or_reference.is_a?(String)
-        build_reference_sale_or_authorization_request(action, money, credit_card_or_reference, options)
+        build_reference_request(action, money, credit_card_or_reference, options)
       else
         build_credit_card_request(action, money, credit_card_or_reference, options)
       end
-    end
-
-    def build_reference_sale_or_authorization_request(action, money, reference, options)
-      self.pairs   = initial_pairs(action, money)
-      pairs.tender = CREDIT_CARD_TENDER
-      pairs.origid = reference
     end
 
     def build_credit_card_request(action, money, credit_card, options)
@@ -103,19 +97,10 @@ module Payflow
     def commit(options = {})
       nvp_body = build_request_body
 
-      puts "------- REQUEST ------------------"
-      puts nvp_body
-      puts "-------------------------"
-
       response = connection.post do |request|
-        request.headers["Content-Type"] = "text/name value"
-        request.headers["X-VPS-CLIENT-TIMEOUT"] = TIMEOUT.to_s
-        request.headers["X-VPS-VIT-Integration-Product"] = "Payflow Gem"
-        request.headers["X-VPS-VIT-Runtime-Version"] = RUBY_VERSION
-        request.headers["Host"] = test? ? TEST_HOST : LIVE_HOST
-        request.headers["X-VPS-REQUEST-ID"] = SecureRandom.base64(20)
+        add_common_headers!(request)
+        request.headers["X-VPS-REQUEST-ID"] = options[:order_id] || SecureRandom.base64(20)
         request.body = nvp_body
-        #request.body = "TRXTYPE=A&TENDER=C&VENDOR=bypassb&USER=bypassb&PARTNER=PayPal&PWD[11]=pwBypass15!&VERBOSITY=HIGH&CARDTYPE=1&SWIPEDECRHOST=MAGT&ENCTRACK2=5600EE18B9AA552B4BBF79B7DB6EB203A402858ED3D1D99A17FF746B46FF819A0B7A07FB1B54539C&AMT=11.00&ENCMP=63456534653465346&KSN=9010980B068EB5000009&MPSTATUS=000002&ENCRYPTIONBLOCKTYPE=1&REGISTEREDBY=PayPal&MAGTEKCARDTYPE=1"#&DEVICESN=73A6EB0218000D00"
       end
 
       Payflow::Response.new(response)
@@ -136,6 +121,14 @@ module Payflow
           faraday.response :logger
           faraday.adapter  Faraday.default_adapter
         end
+      end
+
+      def add_common_headers!(request)
+        request.headers["Content-Type"] = "text/name value"
+        request.headers["X-VPS-CLIENT-TIMEOUT"] = TIMEOUT.to_s
+        request.headers["X-VPS-VIT-Integration-Product"] = "Payflow Gem"
+        request.headers["X-VPS-VIT-Runtime-Version"] = RUBY_VERSION
+        request.headers["Host"] = test? ? TEST_HOST : LIVE_HOST
       end
 
       def initial_pairs(action, money)

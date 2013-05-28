@@ -3,9 +3,6 @@ module Payflow
     attr_accessor :result
 
     def initialize(http_response)
-      puts "-----------------------"
-      puts http_response.inspect
-      puts "-----------------------"
       @http_response = http_response
       @result = parse(http_response)
     end
