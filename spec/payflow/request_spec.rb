@@ -21,6 +21,12 @@ describe Payflow::Request do
     end
   end
 
+  it "should have an expdate like this: MMYY" do
+    cc = Payflow::CreditCard.new(number: "4111111111111111", month: 2, year: 2018)
+    request = Payflow::Request.new(:sale, 100, cc)
+    request.expdate(cc).should eql("0218")
+  end
+
   it "should be in test? if asked" do
     request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
     request.test?.should be(true)

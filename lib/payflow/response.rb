@@ -1,5 +1,3 @@
-require 'nokogiri'
-
 module Payflow
   class Response
     attr_accessor :result
@@ -35,22 +33,18 @@ module Payflow
     private
 
       def parse(http_response)
+        pairs = http_response.body.split("&")
         response = {}
-        xml = Nokogiri::XML(http_response.body)
-        xml.remove_namespaces!
 
-        root = xml.xpath("//ResponseData")
-        tx_result = root.xpath(".//TransactionResult").first
-
-        tx_result.xpath(".//*").each do |node|
+        pairs.each do |node|
           parse_element(response, node)
         end
 
         response
       end
 
-      def parse_element(response, node)
-        response[node.name.underscore.to_sym] = node.text
+      def parse_element(response, pair)
+        response[pair.split("=").first.underscore.to_sym] = pair.split("=").last
       end
   end
 end

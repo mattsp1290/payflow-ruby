@@ -47,7 +47,6 @@ module Payflow
     end
 
     def encrypted?
-      return true
       encrypted_track_data.present?
     end
 

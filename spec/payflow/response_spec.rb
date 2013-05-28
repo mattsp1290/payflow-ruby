@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Payflow::Response do
-  let(:http_response) { OpenStruct.new(status: 200, body: "<ResponseData><TransactionResult></TransactionResult></ResponseData>")}
+  let(:http_response) { OpenStruct.new(status: 200, body: "RESULT=0&PNREF=V7004C204D9A&RESPMSG=HELLOMESSAGE")}
   let(:response) { Payflow::Response.new(http_response)}
 
   it "should know the response message" do
@@ -30,19 +30,11 @@ describe Payflow::Response do
   end
 
   it "should assign result, message, authorization_token, avs_result, cv_result" do
-   http_response.body = "<ResponseData>
-      <TransactionResult>
-        <Result>0</Result>
-        <Message>Our Message</Message>
-        <PNRef>PNREF</PNRef>
-        <CVResult>CVRESULT</CVResult>
-        <AVSResult>AVSRESULT</AVSResult>
-      </TransactionResult>
-    </ResponseData>"
+   http_response.body = "RESULT=0&PNREF=PNREFAUTH&RESPMSG=HELLOMESSAGE&PREFPSMSG=Review: More than one rule was triggered for Review"
 
     response = Payflow::Response.new(http_response)
 
-    response.result[:pn_ref].should eql("PNREF")
+    response.result[:pnref].should eql("PNREFAUTH")
     response.result[:result].should eql("0")
   end
 end
