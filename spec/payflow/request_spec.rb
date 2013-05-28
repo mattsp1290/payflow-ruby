@@ -27,6 +27,11 @@ describe Payflow::Request do
     request.expdate(cc).should eql("0218")
   end
 
+  it "should not have an amount on voids" do
+    request = Payflow::Request.new(:void, "AUTHCODE", Payflow::CreditCard.new)
+    request.pairs.amnt.should be(nil)
+  end
+
   it "should be in test? if asked" do
     request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
     request.test?.should be(true)

@@ -132,10 +132,11 @@ module Payflow
       end
 
       def initial_pairs(action, money)
-        OpenStruct.new(
-          amt: money,
+        struct = OpenStruct.new(
           trxtype: TRANSACTIONS[action]
         )
+        struct.amt = money if money and money.to_f > 0
+        struct
       end
 
       def add_keyed_credit_card!(credit_card)
