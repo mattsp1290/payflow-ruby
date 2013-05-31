@@ -4,22 +4,23 @@ module Payflow
 
     attr_accessor :login, :partner, :password
 
-    def self.new(merchant_account)
+    def self.new(merchant_account, options = {})
       super if requires!(merchant_account, :login, :password, :partner)
     end
 
-    def initialize(merchant_account)
+    def initialize(merchant_account, options = {})
       @login = merchant_account.login
       @partner = merchant_account.partner
       @password = merchant_account.password
-    end
-
-    def request(action, money, reference, options)
-      Payflow::Request.new(action, money, reference, options.merge({
+      @options = options.merge({
         login: login,
         password: password,
         partner: partner
-      }))
+      })
+    end
+
+    def request(action, money, reference, options)
+      Payflow::Request.new(action, money, reference, options.merge(@options))
     end
 
     def authorize(money, credit_card_or_reference, options = {})

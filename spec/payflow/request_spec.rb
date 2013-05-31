@@ -76,16 +76,16 @@ describe Payflow::Request do
     end
 
     it "should not call connection post if asked to mock" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
       connection = stub
       connection.should_not_receive(:post)
       request.stub(:connection).and_return(connection)
-      request.commit(mock: true)
+      request.commit
     end
 
     it "should return a Payflow::MockResponse if mocked" do
-      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
-      request.commit(mock: true).should be_a(Payflow::MockResponse)
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
+      request.commit.should be_a(Payflow::MockResponse)
     end
   end
 
