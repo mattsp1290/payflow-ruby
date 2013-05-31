@@ -97,6 +97,8 @@ module Payflow
     def commit(options = {})
       nvp_body = build_request_body
 
+      return Payflow::MockResponse.new(nvp_body) if options[:mock]
+
       response = connection.post do |request|
         add_common_headers!(request)
         request.headers["X-VPS-REQUEST-ID"] = options[:order_id] || SecureRandom.base64(20)
@@ -107,7 +109,7 @@ module Payflow
     end
 
     def test?
-      return true
+      @options[:test] == true
     end
 
     private
@@ -170,7 +172,7 @@ module Payflow
         add_authorization!
 
         pairs.to_h.map{|key, value|
-          "#{key.to_s.upcase}[#{value.to_s.length}]=#{value}" 
+          "#{key.to_s.upcase.gsub("_", "")}[#{value.to_s.length}]=#{value}" 
         }.join("&")
       end
   end

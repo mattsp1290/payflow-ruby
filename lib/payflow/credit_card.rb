@@ -13,6 +13,7 @@ module Payflow
     attr_accessor :last_name
     attr_accessor :security_code
     attr_accessor :encrypted_track_data
+    attr_accessor :last_four_digits
 
     attr_accessor :track2
     attr_accessor :mp
@@ -52,6 +53,14 @@ module Payflow
 
     def display_number
       self.class.mask(number)
+    end
+
+    def name
+      "#{first_name} #{last_name}"
+    end
+
+    def last_four
+      self.class.last_digits(number)
     end
 
     def self.mask(number)

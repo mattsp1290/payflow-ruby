@@ -7,6 +7,7 @@ require "payflow/expiry_date"
 require "payflow/request"
 require "payflow/response"
 require "payflow/gateway"
+require "payflow/mock_response"
 
 module Payflow
   

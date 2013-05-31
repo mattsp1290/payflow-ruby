@@ -60,4 +60,14 @@ describe Payflow::CreditCard do
     card = Payflow::CreditCard.new(encrypted_track_data: "sdgsdfgsfdgsdfgfdsgdsf")
     card.track2.should eql("2q52345")
   end
+
+  it "should combine the names into one" do
+    card = Payflow::CreditCard.new(first_name: "Tester", last_name: "McGee")
+    card.name.should eql("Tester McGee")
+  end
+
+  it "should know the last four digits of the number" do
+    card = Payflow::CreditCard.new(number: "123456781119897")
+    card.last_four.should eql("9897")
+  end
 end
