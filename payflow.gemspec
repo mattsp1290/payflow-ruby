@@ -6,7 +6,7 @@ require 'payflow/version'
 Gem::Specification.new do |gem|
   gem.name          = "payflow"
   gem.version       = Payflow::VERSION
-  gem.authors       = ["Jonathan Spies", "Ben Bean"]
+  gem.authors       = ["Jonathan Spies", "Ben Bean", "Justin Litchfield"]
   gem.email         = ["jonathan.spies@gmail.com"]
   gem.description   = %q{A Ruby Library wrapper to the Payflow Gateway. This gem was created specifically to add magnetic card reader and decryption support not found in any other Payflow gems.}
   gem.summary       = %q{Does Transactions against Payflow Gateway}
