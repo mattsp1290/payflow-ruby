@@ -1,6 +1,6 @@
 module Payflow
   class MockResponse < Payflow::Response
-    def initialize(request_body)
+    def initialize(request_body=nil)
       @result = {
         result: "0",
         message: "Successful",
