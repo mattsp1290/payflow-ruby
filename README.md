@@ -18,9 +18,9 @@ Or install it yourself as:
 
 ## Usage
 
-credit_card = Payflow::CreditCard.new(encrypted_track_data: "XXXXXXXXXXXX")
-gateway = Payflow::Gateway.new(OpenStruct.new(login: "me", password: "credentials", partner: "PayPal"))
-response = gateway.sale(100, credit_card)
+    credit_card = Payflow::CreditCard.new(encrypted_track_data: "XXXXXXXXXXXX")
+    gateway = Payflow::Gateway.new(OpenStruct.new(login: "me", password: "credentials", partner: "PayPal"))
+    response = gateway.sale(100, credit_card)
 
 ## Contributing
 
