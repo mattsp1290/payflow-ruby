@@ -8,6 +8,7 @@ require "payflow/request"
 require "payflow/response"
 require "payflow/gateway"
 require "payflow/mock_response"
+require "payflow/report"
 
 module Payflow
   
