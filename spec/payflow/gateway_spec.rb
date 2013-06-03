@@ -3,12 +3,14 @@ require 'spec_helper'
 
 describe Payflow::Gateway do
   describe "Making a Sale" do
-    it "should require a login and password" do
-#      credit_card = Payflow::CreditCard.new(name: "Doctor Jones", number: "4111111111111111", month: "11", year: "2020")
-#      gateway = Payflow::Gateway.new(partner: "Paypal", login: "", password: "")
+    
+  end
 
-      #.new(duck)
-      #response = gateway.sale(100, credit_card)
+  describe "Making an authorization" do
+    it "should create a request with :authorization" do
+      Payflow::Request.should_receive(:new).with(:authorization, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(stub(commit: Payflow::MockResponse.new("")))
+      gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
+      gateway.authorize(10, nil)
     end
   end
 
