@@ -169,7 +169,7 @@ module Payflow
       def build_request_body
         add_authorization!
 
-        pairs.to_h.map{|key, value|
+        pairs.marshal_dump.map{|key, value|
           "#{key.to_s.upcase.gsub("_", "")}[#{value.to_s.length}]=#{value}" 
         }.join("&")
       end
