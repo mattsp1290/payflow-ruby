@@ -60,7 +60,7 @@ module Payflow
     end
 
     def last_four
-      self.class.last_digits(number)
+      @last_four_digits ||= self.class.last_digits(number)
     end
 
     def self.mask(number)
@@ -73,6 +73,20 @@ module Payflow
 
     private
       def parse_encryption
+        data = encrypted_track_data.split('|')
+        self.track2 = data[3]
+        self.mpstatus = data[5]
+        self.mp = data[6]
+        self.device_sn = data[7]
+        self.ksn = data[9]
+   
+        split = encrypted_track_data.slice(2, encrypted_track_data.length-2).split("^")
+        self.brand = CreditCardValidator.brand(split[0]) if split[0]
+        @last_four_digits = split[0].slice(-4, 4) if split[0]
+        if split[1]
+          self.first_name = split[1].split("/").last
+          self.last_name = split[1].split("/").first
+        end
       end
 
   end

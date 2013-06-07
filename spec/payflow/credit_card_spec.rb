@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Payflow::CreditCard do
   before(:all) do
+
     @valid_card = Payflow::CreditCard.new(
       number: "4111111111111111",
       month: "1",
@@ -51,14 +52,21 @@ describe Payflow::CreditCard do
 
   it "should know if it has encrypted data" do
     card = Payflow::CreditCard.new(
-        encrypted_track_data: "sdgsdfgsfdgsdfgfdsgdsf"
+        encrypted_track_data: VALID_ENCRYPTION_STRING
       )
     card.encrypted?.should be(true)
   end
 
   it "should automatically parse encrypted data" do
-    card = Payflow::CreditCard.new(encrypted_track_data: "sdgsdfgsfdgsdfgfdsgdsf")
-    card.track2.should eql("2q52345")
+    card = Payflow::CreditCard.new(encrypted_track_data: VALID_ENCRYPTION_STRING)
+    card.track2.should eql("THISISTRACK2")
+    card.mp.should eql("MPDATA")
+    card.mpstatus.should eql("MPSTATUS")
+    card.device_sn.should eql("DEVICE_SN")
+    card.ksn.should eql("KSN")
+    card.last_four.should eql("5454")
+    card.name.should eql("FirstName LastName")
+    card.brand.should eql(:master)
   end
 
   it "should combine the names into one" do

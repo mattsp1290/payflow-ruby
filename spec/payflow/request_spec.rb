@@ -14,7 +14,7 @@ describe Payflow::Request do
 
     describe "with an encrypted credit_card" do
       it "should add ENCTRACK2 to the request pairs" do
-        credit_card = Payflow::CreditCard.new(encrypted_track_data: "SUPERENCRYPTEDTRACKDATA", track2: "Heya")
+        credit_card = Payflow::CreditCard.new(encrypted_track_data: VALID_ENCRYPTION_STRING)
         request = Payflow::Request.new(:sale, 100, credit_card)
         request.pairs.enctrack2.present?.should be(true)
       end

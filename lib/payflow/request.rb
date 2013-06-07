@@ -3,14 +3,12 @@ require 'faraday'
 module Payflow
 
   CARD_MAPPING = {
-    :visa => 0,#'Visa',
-    :master => 1,#'MasterCard',
-    :discover => 'Discover',
-    :american_express => 'Amex',
-    :jcb => 'JCB',
-    :diners_club => 'DinersClub',
-    :switch => 'Switch',
-    :solo => 'Solo'
+    :visa => 0,
+    :master => 1,
+    :discover => 2,
+    :american_express => 3,
+    :jcb => 5,
+    :diners_club => 4
   }
 
   TRANSACTIONS = {
@@ -96,8 +94,6 @@ module Payflow
 
     def commit(options = {})
       nvp_body = build_request_body
-
-      puts nvp_body
 
       return Payflow::MockResponse.new(nvp_body) if @options[:mock]
 
