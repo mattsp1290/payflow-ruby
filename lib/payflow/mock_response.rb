@@ -1,9 +1,9 @@
 module Payflow
   class MockResponse < Payflow::Response
-    def initialize(request_body=nil)
+    def initialize(request_body="")
       request = parse(request_body)
       generate_successful_response
-      generate_failed_response if request[:"amt[6]"] == "100.01"
+      generate_failed_response if request[:"amt[6]"] ~= /.01^/
     end
 
     private
