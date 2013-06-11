@@ -3,7 +3,7 @@ module Payflow
     def initialize(request_body="")
       request = parse(request_body)
       generate_successful_response
-      generate_failed_response if request[:"amt[6]"] ~= /.01^/
+      generate_failed_response if request[:amt] =~ /\.01/
     end
 
     private
@@ -29,7 +29,7 @@ module Payflow
 
 
     def parse(request_body)
-      pairs = request_body.split("&")
+      pairs = request_body.gsub(/\[\d+\]/, "").split("&")
       response = {}
 
       pairs.each do |node|
