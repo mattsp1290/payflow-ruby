@@ -10,20 +10,20 @@ module Payflow
     def generate_successful_response
       @result = {
         result: "0",
-        message: "Successful",
-        pn_ref: "MOCKTOKEN",
-        avs_result: "0",
-        cv_result: "0"
+        respmsg: "Successful",
+        pnref: "MOCKTOKEN",
+        avsresult: "0",
+        cvresult: "0"
       }
     end
 
     def generate_failed_response
       @result = {
         result: "1",
-        message: "DECLINED",
-        pn_ref: "MOCKTOKEN",
-        avs_result: "0",
-        cv_result: "0"
+        respmsg: "DECLINED",
+        pnref: "MOCKTOKEN",
+        avsresult: "0",
+        cvresult: "0"
       }
     end
 

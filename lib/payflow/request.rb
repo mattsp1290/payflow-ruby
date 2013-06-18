@@ -94,7 +94,7 @@ module Payflow
 
     def commit(options = {})
       nvp_body = build_request_body
-
+      
       return Payflow::MockResponse.new(nvp_body) if @options[:mock]
 
       response = connection.post do |request|

@@ -12,19 +12,19 @@ module Payflow
     end
 
     def message
-      result[:message]
+      result[:respmsg]
     end
 
     def authorization_token
-      result[:pn_ref] || @result[:rp_ref]
+      result[:pnref] || @result[:rpref]
     end
 
     def avs_result
-      result[:avs_result]
+      result[:avsresult]
     end
 
     def cvv_result
-      result[:cv_result]
+      result[:cvresult]
     end
 
     private
