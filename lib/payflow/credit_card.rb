@@ -37,6 +37,7 @@ module Payflow
       self.mp        = options[:mp]
 
       parse_encryption if encrypted?
+      set_brand(@number) if @number
     end
 
     def expiry_date
@@ -72,6 +73,10 @@ module Payflow
     end
 
     private
+      def set_brand(brand_designator)
+        self.brand = CreditCardValidator.brand(brand_designator)
+      end
+
       def parse_encryption
         data = encrypted_track_data.split('|')
         self.track2 = data[3]
@@ -81,7 +86,7 @@ module Payflow
         self.ksn = data[9]
    
         split = encrypted_track_data.slice(2, encrypted_track_data.length-2).split("^")
-        self.brand = CreditCardValidator.brand(split[0]) if split[0]
+        set_brand(split[0]) if split[0]
         @last_four_digits = split[0].slice(-4, 4) if split[0]
         if split[1]
           self.first_name = split[1].split("/").last

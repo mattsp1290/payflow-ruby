@@ -69,6 +69,11 @@ describe Payflow::CreditCard do
     card.brand.should eql(:master)
   end
 
+  it "should set brand on unencrypted cards" do
+    card = Payflow::CreditCard.new(number: "4111111111111111", month: 1, year: 2090, name: "Tester McGee", security_code: 123)
+    card.brand.should eql(:visa)
+  end
+
   it "should combine the names into one" do
     card = Payflow::CreditCard.new(first_name: "Tester", last_name: "McGee")
     card.name.should eql("Tester McGee")
