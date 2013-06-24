@@ -23,10 +23,19 @@ module Payflow
       })
     end
 
+    def create_report
+      raise NotImplementedError
+    end
+
     def fetch(id = nil)
-      id ||= report_id
-      meta = parse_meta(get_meta(id))
-      data = parse_data(meta, get_data(id))
+      id ||= self.report_id
+      meta = get_meta(id)
+      if meta.successful?
+        meta = parse_meta(meta.body)
+        data = parse_data(meta, get_data(id).body)
+      else
+        nil
+      end
     end
 
     def commit(body)

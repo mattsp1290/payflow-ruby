@@ -11,6 +11,7 @@ require "payflow/mock_response"
 require "payflow/report"
 require "payflow/settlement_report"
 require "payflow/report_response"
+require "payflow/mock_report_response"
 
 module Payflow
   

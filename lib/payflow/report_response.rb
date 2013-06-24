@@ -1,11 +1,12 @@
 require 'nokogiri'
 module Payflow
   class ReportResponse
-    attr_accessor :result, :report_id, :status_code
+    attr_accessor :result, :report_id, :status_code, :body
 
     def initialize(http_response)
       @http_response = http_response
       @result = parse(http_response.body)
+      @body = http_response.body
     end
 
     def successful?

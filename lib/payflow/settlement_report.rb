@@ -17,7 +17,9 @@ module Payflow
         end
       end
 
-      commit(xml.target!)
+      response = commit(xml.target!)
+      @report_id = response.report_id if response.successful?
+      response
     end
   end
 end
