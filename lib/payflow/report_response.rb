@@ -10,7 +10,11 @@ module Payflow
     end
 
     def successful?
-      response_successful? && @status_code == 3
+      response_successful? && (creating? ? creation_successful? : true)
+    end
+
+    def creation_successful?
+      @status_code == 3
     end
 
     def message
@@ -41,6 +45,10 @@ module Payflow
         doc.xpath("//statusCode").each do |row|
           @status_code = row.text.to_i
         end
+      end
+
+      def creating?
+        @status_code.present?
       end
   end
 end

@@ -28,6 +28,11 @@ describe Payflow::ReportResponse do
     response.successful?.should be(false)
   end
 
+  it "should be successful if reponse is successful and there is no status code" do
+    response = Payflow::ReportResponse.new(OpenStruct.new(status: 200, body: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<reportingEngineResponse><baseResponse><responseCode>100</responseCode><responseMsg>Request has completed successfully</responseMsg></baseResponse><runReportResponse><reportId>RE0110004581</reportId><statusMsg>Report has completed successfully</statusMsg></runReportResponse></reportingEngineResponse>\n\n\r\n"))
+    response.successful?.should be(true)
+  end
+
   it "should know if the response was successful" do
     response.successful?.should be(true)
   end

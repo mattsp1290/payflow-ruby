@@ -34,6 +34,7 @@ module Payflow
         meta = parse_meta(meta.body)
         data = parse_data(meta, get_data(id).body)
       else
+        puts meta.inspect
         nil
       end
     end
