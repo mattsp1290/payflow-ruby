@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Payflow::Response do
+describe Payflow::MockResponse do
   it "should be successful" do
     response = Payflow::MockResponse.new("RESULT=0")
     response.successful?.should be(true)

@@ -4,38 +4,29 @@ require 'nokogiri'
 module Payflow
   class Report
 
-    attr_accessor :xml
+    attr_accessor :xml, :login, :password, :partner, :user, :report_id
     
     TEST_HOST = 'payments-reports.paypal.com/test-reportingengine'
     LIVE_HOST = 'payments-reports.paypal.com/reportingengine'
 
-    def initialize(options)
+    def initialize(merchant_account, options = {})
       @options = options
+      @login = merchant_account.login
+      @partner = merchant_account.partner
+      @password = merchant_account.password
+      @user = merchant_account.user || merchant_account.login
+      @options = options.merge({
+        login: login,
+        password: password,
+        partner: partner,
+        user: user
+      })
     end
 
-    def settlement_report(processor)
-      xml = Builder::XmlMarkup.new
-      xml.tag! 'runReportRequest' do
-        xml.tag! 'reportName', 'SettlementReport'
-
-        [
-          {name: 'processor', value: processor},
-          {name: 'start_date', value: '2013-05-03'},
-          {name: 'end_date', value: '2013-06-03'}
-        ].each do |param|
-          xml.tag! 'reportParam' do
-            xml.tag! 'paramName', param[:name]
-            xml.tag! 'paramValue', param[:value]
-          end
-        end
-      end
-
-      commit(xml.target!)
-    end
-
-    def get_report(report_id)
-      meta = parse_meta(get_meta(report_id))
-      data = parse_data(meta, get_data(report_id))
+    def fetch(id = nil)
+      id ||= report_id
+      meta = parse_meta(get_meta(id))
+      data = parse_data(meta, get_data(id))
     end
 
     def commit(body)
@@ -45,7 +36,7 @@ module Payflow
         request.body = body
       end
 
-      response.body
+      Payflow::ReportResponse.new(response)
     end
 
     def test?

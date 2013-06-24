@@ -22,6 +22,32 @@ Or install it yourself as:
     gateway = Payflow::Gateway.new(OpenStruct.new(login: "me", password: "credentials", partner: "PayPal"))
     response = gateway.sale(100, credit_card)
 
+## Authorize and Delayed Capture
+
+    response = gateway.authorize(10, credit_card)
+    gateway.capture(10, response.authorization_token)
+
+## Making a sale from a tokenized payment method
+
+    gateway.sale(10, response.authorization_token)
+    
+## Reports
+
+  The Payflow gem also supports the Payflow Report API. This is a separate API but supports the same credentials.
+  
+    report = Payflow::SettlementReport.new(OpenStruct(login: "me", password: "password", partner: "PayPal"))
+    
+    if report.create_report("YOUR PROCESSOR").successful?
+      report.fetch
+    end
+
+
+## Testing
+
+  The gateway initialization includes a test and mock setting. __Test__ will use the Payflow pilot server and __Mock__ will return a MockResponse that inherits from Payflow::Response so that you can use it exactly as you would a real response
+
+    gateway = Payflow::Gateway.new(OpenStruct.new(login: "me", password: "credentials", partner: "PayPal"), {test: true, mock: true})
+
 ## Contributing
 
 1. Fork it
