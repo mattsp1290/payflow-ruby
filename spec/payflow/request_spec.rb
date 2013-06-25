@@ -27,6 +27,12 @@ describe Payflow::Request do
     request.expdate(cc).should eql("0218")
   end
 
+  it "should not explode on a bad date" do
+    cc = Payflow::CreditCard.new(number: "4111111111111111", month: 2)
+    request = Payflow::Request.new(:sale, 100, cc)
+    request.expdate(cc).should eql("")
+  end
+
   it "should not have an amount on voids" do
     request = Payflow::Request.new(:void, "AUTHCODE", Payflow::CreditCard.new)
     request.pairs.amnt.should be(nil)

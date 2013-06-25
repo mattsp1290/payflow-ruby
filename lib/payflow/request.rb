@@ -90,6 +90,8 @@ module Payflow
       month = sprintf("%.2i", creditcard.month.to_s.sub(/^0+/, ''))
 
       "#{month}#{year}"
+    rescue ArgumentError
+      ""
     end
 
     def commit(options = {})
