@@ -10,6 +10,7 @@ require "payflow/gateway"
 require "payflow/mock_response"
 require "payflow/report"
 require "payflow/settlement_report"
+require "payflow/batch_report"
 require "payflow/report_response"
 require "payflow/mock_report_response"
 
