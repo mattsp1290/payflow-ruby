@@ -37,7 +37,7 @@ Or install it yourself as:
   
     report = Payflow::SettlementReport.new(OpenStruct(login: "me", password: "password", partner: "PayPal"))
     
-    if report.create_report("YOUR PROCESSOR").successful?
+    if report.create_report("YOUR PROCESSOR", "2013-01-01", "2013-01-02").successful?
       report.fetch
     end
 

@@ -118,6 +118,11 @@ module Payflow
         }
       end
 
+      def date_string(date)
+        date = date.to_s unless date.is_a?(String)
+        date
+      end
+
       def parse_data(meta, xml)
         doc = Nokogiri::XML(xml)
 
