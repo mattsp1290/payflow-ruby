@@ -40,6 +40,12 @@ Or install it yourself as:
     if report.create_report("YOUR PROCESSOR", "2013-01-01", "2013-01-02").successful?
       report.fetch
     end
+    
+  __Available Reports__
+  
+  * SettlementReport - Gives Transaction Detail including Batch IDs
+  * BatchReport - Gives Summary data about settlement batches
+  
 
 
 ## Testing
