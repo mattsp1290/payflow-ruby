@@ -50,7 +50,7 @@ module Payflow
     end
 
     def test?
-      true
+      @options[:test] == true
     end
 
     private
