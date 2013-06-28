@@ -46,6 +46,8 @@ module Payflow
         build_reference_request(action, money, credit_card_or_reference, options)
       when :void
         build_reference_request(action, money, credit_card_or_reference, options)
+      when :credit
+        build_reference_request(action, money, credit_card_or_reference, options)
       end
     end
 

@@ -35,7 +35,12 @@ describe Payflow::Request do
 
   it "should not have an amount on voids" do
     request = Payflow::Request.new(:void, "AUTHCODE", Payflow::CreditCard.new)
-    request.pairs.amnt.should be(nil)
+    request.pairs.amt.should be(nil)
+  end
+
+  it "should handle credits" do
+    request = Payflow::Request.new(:credit, 10, "AUTHCODE", {test: true})
+    request.pairs.amt.should eql(10)
   end
 
   it "should be in test? if asked" do
