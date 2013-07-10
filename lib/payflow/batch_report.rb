@@ -7,7 +7,7 @@ module Payflow
 
         [
           {name: 'processor', value: processor},
-          {name: 'group_by_tender': value: 'true'},
+          {name: 'group_by_tender', value: 'true'},
           {name: 'start_date', value: date_string(start_date)},
           {name: 'end_date', value: date_string(end_date)}
         ].each do |param|
