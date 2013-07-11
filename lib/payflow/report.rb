@@ -32,7 +32,11 @@ module Payflow
       meta = get_meta(id)
       if meta.successful?
         meta = parse_meta(meta.body)
-        data = parse_data(meta, get_data(id).body)
+        data = []
+        for page in 1..meta[:numberOfPages].to_i do
+          data << parse_data(meta, get_data(id, page).body)
+        end
+        data.flatten
       else
         puts meta.inspect
         nil
@@ -92,11 +96,11 @@ module Payflow
         commit(xml.target!)
       end
 
-      def get_data(report_id)
+      def get_data(report_id, page = 1)
         xml = Builder::XmlMarkup.new
         xml.tag! 'getDataRequest' do
           xml.tag! 'reportId', report_id
-          xml.tag! 'pageNum', "1"
+          xml.tag! 'pageNum', 1.to_s
         end
 
         commit(xml.target!)
