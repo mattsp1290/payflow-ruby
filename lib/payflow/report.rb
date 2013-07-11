@@ -43,6 +43,7 @@ module Payflow
       body = build_request(body)
 
       response = connection.post do |request|
+        request.options.timeout = 120 # reports can take awhile
         request.body = body
       end
 
