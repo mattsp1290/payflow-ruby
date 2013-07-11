@@ -100,7 +100,7 @@ module Payflow
         xml = Builder::XmlMarkup.new
         xml.tag! 'getDataRequest' do
           xml.tag! 'reportId', report_id
-          xml.tag! 'pageNum', 1.to_s
+          xml.tag! 'pageNum', page.to_s
         end
 
         commit(xml.target!)
