@@ -12,6 +12,16 @@ describe Payflow::Request do
       request.pairs.trxtype.should eql('D')
     end
 
+    it "should add initial pairs" do
+      request = Payflow::Request.new(:capture, 100, "CREDITCARDREF")
+      request.pairs.amt.should be(100)
+    end
+
+    it "should add a comment if submitted" do
+      request = Payflow::Request.new(:capture, 100, "CREDITCARDREF", {pairs: {comment1: "COMMENT"}})
+      request.pairs.comment1.should eql("COMMENT")
+    end
+
     describe "with an encrypted credit_card" do
       it "should add ENCTRACK2 to the request pairs" do
         credit_card = Payflow::CreditCard.new(encrypted_track_data: VALID_ENCRYPTION_STRING)

@@ -38,6 +38,7 @@ module Payflow
 
     def initialize(action, money, credit_card_or_reference, options = {})
       @options = options
+      self.pairs   = initial_pairs(action, money, options[:pairs])
       
       case action
       when :sale, :authorization
@@ -60,13 +61,11 @@ module Payflow
     end
 
     def build_credit_card_request(action, money, credit_card, options)
-      self.pairs   = initial_pairs(action, money)
       pairs.tender = CREDIT_CARD_TENDER
       add_credit_card!(credit_card)
     end
 
     def build_reference_request(action, money, authorization, options)
-      self.pairs   = initial_pairs(action, money)
       pairs.tender = CREDIT_CARD_TENDER
       pairs.origid = authorization
     end
@@ -135,11 +134,16 @@ module Payflow
         request.headers["Host"] = test? ? TEST_HOST : LIVE_HOST
       end
 
-      def initial_pairs(action, money)
+      def initial_pairs(action, money, optional_pairs = {})
         struct = OpenStruct.new(
           trxtype: TRANSACTIONS[action]
         )
         struct.amt = money if money and money.to_f > 0
+        if optional_pairs
+          optional_pairs.each do |key, value|
+            struct[key] = value
+          end
+        end
         struct
       end
 
