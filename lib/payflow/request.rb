@@ -141,7 +141,7 @@ module Payflow
         struct.amt = money if money and money.to_f > 0
         if optional_pairs
           optional_pairs.each do |key, value|
-            struct[key] = value
+            struct.send("#{key}=", value)
           end
         end
         struct
