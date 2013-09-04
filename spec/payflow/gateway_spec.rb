@@ -8,7 +8,7 @@ describe Payflow::Gateway do
 
   describe "Making an authorization" do
     it "should create a request with :authorization" do
-      Payflow::Request.should_receive(:new).with(:authorization, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(stub(commit: Payflow::MockResponse.new("")))
+      Payflow::Request.should_receive(:new).with(:authorization, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
       gateway.authorize(10, nil)
     end

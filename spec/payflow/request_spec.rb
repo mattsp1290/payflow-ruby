@@ -24,6 +24,11 @@ describe Payflow::Request do
       request.pairs.trxtype.should eql('D')
     end
 
+    it "should not convert nil money to BigDecimal" do
+      BigDecimal.should_not_receive(:new)
+      request = Payflow::Request.new(:void, nil, "CREDITCARDREF")
+    end
+
     it "should add initial pairs" do
       request = Payflow::Request.new(:capture, 100, "CREDITCARDREF")
       request.pairs.amt.should eql(100)
@@ -73,7 +78,7 @@ describe Payflow::Request do
   describe "commiting" do
     it "should call connection post" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
-      connection = stub
+      connection = double
       connection.should_receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
       request.stub(:connection).and_return(connection)
       request.commit
@@ -81,7 +86,7 @@ describe Payflow::Request do
 
     it "should return a Payflow::Response" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
-      connection = stub
+      connection = double
       connection.should_receive(:post).and_return(OpenStruct.new(status: 200, body: ""))
       request.stub(:connection).and_return(connection)
       request.commit.should be_a(Payflow::Response)
@@ -101,7 +106,7 @@ describe Payflow::Request do
 
       faraday_request.stub(:headers).and_return(headers)
 
-      connection = stub
+      connection = double
       connection.stub(:post).and_yield(faraday_request).and_return(OpenStruct.new(status: 200, body: ""))
 
       request.stub(:connection).and_return(connection)
@@ -110,7 +115,7 @@ describe Payflow::Request do
 
     it "should not call connection post if asked to mock" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
-      connection = stub
+      connection = double
       connection.should_not_receive(:post)
       request.stub(:connection).and_return(connection)
       request.commit

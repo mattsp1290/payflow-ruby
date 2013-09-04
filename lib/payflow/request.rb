@@ -39,7 +39,7 @@ module Payflow
 
     def initialize(action, money, credit_card_or_reference, options = {})
       @options = options
-      money = BigDecimal.new(money, 2)
+      money = BigDecimal.new(money, 2) if money
       self.pairs   = initial_pairs(action, money, options[:pairs])
       
       case action
