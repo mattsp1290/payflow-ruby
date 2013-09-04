@@ -1,10 +1,22 @@
 require 'spec_helper'
+require 'bigdecimal'
 
 describe Payflow::Request do
   describe "initializing" do
     it "should build a sale request on action capture" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF")
       request.pairs.trxtype.should eql('S')
+    end
+
+    it "should convert non BigDecimal money to BigDecimal 2" do
+      request = Payflow::Request.new(:sale, 1.1 - 0.2, "CREDITCARDREF")
+      request.pairs.amt.is_a?(BigDecimal).should be(true)
+    end
+
+    # 1.1 - 0.2 yields 0.90000000000001
+    it "should not allow more than 2 decimal places" do
+      request = Payflow::Request.new(:sale, 1.1 - 0.2, "CREDITCARDREF")
+      request.pairs.amt.should eql(0.9)
     end
 
     it "should build a capture request on action capture" do
@@ -14,7 +26,7 @@ describe Payflow::Request do
 
     it "should add initial pairs" do
       request = Payflow::Request.new(:capture, 100, "CREDITCARDREF")
-      request.pairs.amt.should be(100)
+      request.pairs.amt.should eql(100)
     end
 
     it "should add a comment if submitted" do
