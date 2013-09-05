@@ -117,9 +117,10 @@ module Payflow
 
     private
       def cast_amount(money)
-        money = money.to_f.round(2).to_s if money.is_a?(String)
-        money = BigDecimal.new(money, 2) if money
-        money
+        return nil if money.nil?
+        money = money.to_f if money.is_a?(String)
+        money = money.round(2) if money.is_a?(Float)
+        BigDecimal.new(money.to_s)
       end
 
       def endpoint
