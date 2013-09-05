@@ -19,6 +19,12 @@ describe Payflow::Request do
       request.pairs.amt.should eql(0.9)
     end
 
+    it "should convert string input to BigDecimal" do
+      request = Payflow::Request.new(:sale, "9.30000001", "CREDITCARDREF")
+      request.pairs.amt.is_a?(BigDecimal).should be(true)
+      request.pairs.amt.should eql(BigDecimal.new(9.3, 2))
+    end
+
     it "should build a capture request on action capture" do
       request = Payflow::Request.new(:capture, 100, "CREDITCARDREF")
       request.pairs.trxtype.should eql('D')

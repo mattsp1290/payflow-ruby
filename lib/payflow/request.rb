@@ -39,7 +39,7 @@ module Payflow
 
     def initialize(action, money, credit_card_or_reference, options = {})
       @options = options
-      money = BigDecimal.new(money, 2) if money
+      money = cast_amount(money)
       self.pairs   = initial_pairs(action, money, options[:pairs])
       
       case action
@@ -116,6 +116,12 @@ module Payflow
     end
 
     private
+      def cast_amount(money)
+        money = money.to_f if money.is_a?(String)
+        money = BigDecimal.new(money, 2) if money
+        money
+      end
+
       def endpoint
         "https://#{test? ? TEST_HOST : LIVE_HOST}"
       end
