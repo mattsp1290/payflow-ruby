@@ -117,7 +117,7 @@ module Payflow
 
     private
       def cast_amount(money)
-        money = money.to_f if money.is_a?(String)
+        money = money.to_f.round(2).to_s if money.is_a?(String)
         money = BigDecimal.new(money, 2) if money
         money
       end

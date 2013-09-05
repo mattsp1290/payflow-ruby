@@ -19,6 +19,14 @@ describe Payflow::Request do
       request.pairs.amt.should eql(0.9)
     end
 
+    it "should round strings" do
+      request = Payflow::Request.new(:sale, "1.25111111111", "CREDITCARDREF")
+      request.pairs.amt.should eql(1.25)
+
+      request = Payflow::Request.new(:sale, "0.25111111111", "CREDITCARDREF")
+      request.pairs.amt.should eql(0.25)
+    end
+
     it "should convert string input to BigDecimal" do
       request = Payflow::Request.new(:sale, "9.30000001", "CREDITCARDREF")
       request.pairs.amt.is_a?(BigDecimal).should be(true)
