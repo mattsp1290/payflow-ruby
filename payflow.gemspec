@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "activemodel", ">=3.1.12"
   gem.add_dependency "nokogiri", "~>1.5.9"
-  gem.add_dependency "builder", "~>3.0.0"
+  gem.add_dependency "builder", ">=3.0.0"
   gem.add_dependency "faraday", "~>0.8.7"
 
   gem.files         = `git ls-files`.split($/)
