@@ -1,5 +1,4 @@
 require 'faraday'
-require 'bigdecimal'
 
 module Payflow
 
@@ -40,6 +39,7 @@ module Payflow
     def initialize(action, money, credit_card_or_reference, options = {})
       @options = options
       money = cast_amount(money)
+      
       self.pairs   = initial_pairs(action, money, options[:pairs])
       
       case action
@@ -120,7 +120,8 @@ module Payflow
         return nil if money.nil?
         money = money.to_f if money.is_a?(String)
         money = money.round(2) if money.is_a?(Float)
-        BigDecimal.new(money.to_s)
+        "%.2f" % money
+        #money.to_s # stored as a string to avoid float issues and Big Decimal formatting
       end
 
       def endpoint

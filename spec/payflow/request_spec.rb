@@ -8,34 +8,23 @@ describe Payflow::Request do
       request.pairs.trxtype.should eql('S')
     end
 
-    it "should convert non BigDecimal money to BigDecimal 2" do
-      request = Payflow::Request.new(:sale, 1.1 - 0.2, "CREDITCARDREF")
-      request.pairs.amt.is_a?(BigDecimal).should be(true)
-    end
-
     # 1.1 - 0.2 yields 0.90000000000001
     it "should not allow more than 2 decimal places" do
       request = Payflow::Request.new(:sale, 1.1 - 0.2, "CREDITCARDREF")
-      request.pairs.amt.should eql(0.9)
+      request.pairs.amt.should eql("0.90")
     end
 
     it "should round strings" do
       request = Payflow::Request.new(:sale, "1.25111111111", "CREDITCARDREF")
-      request.pairs.amt.should eql(1.25)
+      request.pairs.amt.should eql("1.25")
 
       request = Payflow::Request.new(:sale, "0.25111111111", "CREDITCARDREF")
-      request.pairs.amt.should eql(0.25)
+      request.pairs.amt.should eql("0.25")
     end
 
     it "should round floats" do
       request = Payflow::Request.new(:sale, 1.25111111111, "CREDITCARDREF")
-      request.pairs.amt.should eql(1.25)      
-    end
-
-    it "should convert string input to BigDecimal" do
-      request = Payflow::Request.new(:sale, "9.30000001", "CREDITCARDREF")
-      request.pairs.amt.is_a?(BigDecimal).should be(true)
-      request.pairs.amt.should eql(BigDecimal.new(9.3, 2))
+      request.pairs.amt.should eql("1.25")      
     end
 
     it "should build a capture request on action capture" do
@@ -50,7 +39,7 @@ describe Payflow::Request do
 
     it "should add initial pairs" do
       request = Payflow::Request.new(:capture, 100, "CREDITCARDREF")
-      request.pairs.amt.should eql(100)
+      request.pairs.amt.should eql("100.00")
     end
 
     it "should add a comment if submitted" do
@@ -86,7 +75,7 @@ describe Payflow::Request do
 
   it "should handle credits" do
     request = Payflow::Request.new(:credit, 10, "AUTHCODE", {test: true})
-    request.pairs.amt.should eql(10)
+    request.pairs.amt.should eql("10.00")
   end
 
   it "should be in test? if asked" do
