@@ -50,9 +50,20 @@ describe Payflow::CreditCard do
     card.encrypted?.should be(false)
   end
 
-  it "should know if it has encrypted data" do
+  it "should know if it has encrypted string data" do
     card = Payflow::CreditCard.new(
         encrypted_track_data: VALID_ENCRYPTION_STRING
+      )
+    card.encrypted_string?.should be(true)
+  end
+
+  it "should know if it has encrypted params" do
+    card = Payflow::CreditCard.new(
+        mp: "1",
+        mpstatus: "2020",
+        ksn: "4111111111111111",
+        track2: "Sadgfdsgfsd",
+        device_sn: "sadgdfsa"
       )
     card.encrypted?.should be(true)
   end

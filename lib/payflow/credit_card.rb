@@ -36,7 +36,7 @@ module Payflow
       self.ksn       = options[:ksn]
       self.mp        = options[:mp]
 
-      parse_encryption if encrypted?
+      parse_encryption if encrypted_string?
       set_brand(@number) if @number
     end
 
@@ -49,6 +49,14 @@ module Payflow
     end
 
     def encrypted?
+      encrypted_params? or encrypted_string?
+    end
+
+    def encrypted_params?
+      track2.present? and mpstatus.present? and device_sn.present? and ksn.present? and mp.present?
+    end
+
+    def encrypted_string?
       encrypted_track_data.present?
     end
 
