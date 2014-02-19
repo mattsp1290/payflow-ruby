@@ -16,7 +16,8 @@ module Payflow
     :authorization  => "A",
     :capture        => "D",
     :void           => "V",
-    :credit         => "C"
+    :credit         => "C",
+    :credit_no_ref  => "C"
   }
 
   DEFAULT_CURRENCY = "USD"
@@ -51,6 +52,8 @@ module Payflow
         build_reference_request(action, money, credit_card_or_reference, options)
       when :credit
         build_reference_request(action, money, credit_card_or_reference, options)
+      when :credit_no_ref
+        build_credit_card_request(action, money, credit_card_or_reference, options)
       end
     end
 

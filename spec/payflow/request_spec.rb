@@ -32,6 +32,12 @@ describe Payflow::Request do
       request.pairs.trxtype.should eql('D')
     end
 
+    it "should build a credit card request on action credit_no_ref" do
+      cc = Payflow::CreditCard.new(number: "4111111111111111", month: 2, year: 2018)
+      request = Payflow::Request.new(:credit_no_ref, 100, cc)
+      request.pairs.trxtype.should eql('C')
+    end
+
     it "should not convert nil money to BigDecimal" do
       BigDecimal.should_not_receive(:new)
       request = Payflow::Request.new(:void, nil, "CREDITCARDREF")

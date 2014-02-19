@@ -35,6 +35,10 @@ module Payflow
       request(:credit, money, reference, options).commit(options)
     end
 
+    def credit(money, options = {})
+      refund(money, nil, options)
+    end
+
     def capture(money, authorization, options = {})
       request(:capture, money, authorization, options).commit(options)
     end
