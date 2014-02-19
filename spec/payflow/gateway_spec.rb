@@ -20,9 +20,10 @@ describe Payflow::Gateway do
 
   describe "Making a credit" do
     it "should create a request with a :credit" do
-      Payflow::Request.should_receive(:new).with(:credit, 10, nil, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
+      cc = Payflow::CreditCard.new(number: "4111111111111111", month: "1", year: "2090")
+      Payflow::Request.should_receive(:new).with(:credit, 10, cc, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
-      gateway.credit(10)
+      gateway.credit(10, cc)
     end
   end
 
