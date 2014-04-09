@@ -29,15 +29,15 @@ module Payflow
   CREDIT_CARD_TENDER  = 'C'
 
   class Request
-    attr_accessor :pairs
+    attr_accessor :pairs, :options
 
-    TIMEOUT = 60
+    DEFAULT_TIMEOUT = 60
 
     TEST_HOST = 'pilot-payflowpro.paypal.com'
     LIVE_HOST = 'payflowpro.paypal.com'
 
-    def initialize(action, money, credit_card_or_reference, options = {})
-      @options = options
+    def initialize(action, money, credit_card_or_reference, _options = {})
+      self.options = _options
       money = cast_amount(money)
       
       self.pairs   = initial_pairs(action, money, options[:pairs])
@@ -142,7 +142,7 @@ module Payflow
 
       def add_common_headers!(request)
         request.headers["Content-Type"] = "text/name value"
-        request.headers["X-VPS-CLIENT-TIMEOUT"] = TIMEOUT.to_s
+        request.headers["X-VPS-CLIENT-TIMEOUT"] = (options[:timeout] || DEFAULT_TIMEOUT).to_s
         request.headers["X-VPS-VIT-Integration-Product"] = "Payflow Gem"
         request.headers["X-VPS-VIT-Runtime-Version"] = RUBY_VERSION
         request.headers["Host"] = test? ? TEST_HOST : LIVE_HOST

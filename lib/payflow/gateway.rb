@@ -1,5 +1,5 @@
 module Payflow
-
+  
   class Gateway
 
     attr_accessor :login, :partner, :password

@@ -140,6 +140,28 @@ describe Payflow::Request do
       request.commit(order_id: "MYORDERID")
     end
 
+    it "sets the time out header to the passed in option" do
+      request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, timeout: 15})
+      faraday_request = double
+      faraday_request.should_receive(:body=)
+      headers = double
+      
+      headers.should_receive(:[]=).with("Content-Type", "text/name value")
+      headers.should_receive(:[]=).with("X-VPS-CLIENT-TIMEOUT", "15")
+      headers.should_receive(:[]=).with("X-VPS-VIT-Integration-Product", "Payflow Gem")
+      headers.should_receive(:[]=).with("X-VPS-VIT-Runtime-Version", RUBY_VERSION)
+      headers.should_receive(:[]=).with("Host", Payflow::Request::TEST_HOST)
+      headers.should_receive(:[]=).with("X-VPS-REQUEST-ID", "MYORDERID")
+      
+      faraday_request.stub(:headers).and_return(headers)
+
+      connection = double
+      connection.stub(:post).and_yield(faraday_request).and_return(OpenStruct.new(status: 200, body: ""))
+
+      request.stub(:connection).and_return(connection)
+      request.commit(order_id: "MYORDERID")
+    end
+
     it "should not call connection post if asked to mock" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true, mock: true})
       connection = double
