@@ -1,6 +1,6 @@
 module Payflow
   class Response
-    attr_accessor :result
+    attr_accessor :result, :http_response
 
     def initialize(http_response)
       @http_response = http_response
