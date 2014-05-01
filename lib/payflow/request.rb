@@ -81,6 +81,8 @@ module Payflow
 
       if credit_card.encrypted?
         add_encrypted_credit_card!(credit_card)
+      elsif credit_card.track2.present?
+        add_swiped_credit_card!(credit_card)
       else
         add_keyed_credit_card!(credit_card)
       end
@@ -159,6 +161,11 @@ module Payflow
           end
         end
         struct
+      end
+
+      def add_swiped_credit_card!(credit_card)
+        pairs.swipe = credit_card.track2
+        pairs
       end
 
       def add_keyed_credit_card!(credit_card)

@@ -102,6 +102,12 @@ describe Payflow::Request do
     request.test?.should be(true)
   end
 
+  it "has swipe if sent a plain track2" do
+    cc = Payflow::CreditCard.new(number: "4111111111111111", month: 2, track2: "SWIPED")
+    request = Payflow::Request.new(:sale, 100, cc)
+    request.pairs.swipe.should eql("SWIPED")
+  end
+
   describe "commiting" do
     it "should call connection post" do
       request = Payflow::Request.new(:sale, 100, "CREDITCARDREF", {test: true})
