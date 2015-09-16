@@ -14,6 +14,8 @@ require "payflow/settlement_report"
 require "payflow/batch_report"
 require "payflow/report_response"
 require "payflow/mock_report_response"
+require "payflow/batch_search"
+require "payflow/transaction_search"
 
 module Payflow
   
