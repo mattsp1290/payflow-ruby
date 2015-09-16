@@ -20,6 +20,7 @@ module Payflow
     end
 
     def request(action, money, reference, options)
+      reference = Payflow::CreditCardAdapter.run(reference)
       Payflow::Request.new(action, money, reference, options.merge(@options))
     end
 

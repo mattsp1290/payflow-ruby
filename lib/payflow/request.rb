@@ -36,7 +36,7 @@ module Payflow
     TEST_HOST = 'pilot-payflowpro.paypal.com'
     LIVE_HOST = 'payflowpro.paypal.com'
 
-    def initialize(action, money, credit_card_or_reference, _options = {})
+    def initialize(action, money, payflow_credit_card, _options = {})
       self.options = _options
       money = cast_amount(money)
       
@@ -44,25 +44,25 @@ module Payflow
       
       case action
       when :sale, :authorization
-        build_sale_or_authorization_request(action, money, credit_card_or_reference, options)
+        build_sale_or_authorization_request(action, money, payflow_credit_card, options)
       when :capture
-        build_reference_request(action, money, credit_card_or_reference, options)
+        build_reference_request(action, money, payflow_credit_card, options)
       when :void
-        build_reference_request(action, money, credit_card_or_reference, options)
+        build_reference_request(action, money, payflow_credit_card, options)
       when :credit
-        if credit_card_or_reference.is_a?(String)
-          build_reference_request(action, money, credit_card_or_reference, options)
+        if payflow_credit_card.is_a?(String)
+          build_reference_request(action, money, payflow_credit_card, options)
         else
-          build_credit_card_request(action, money, credit_card_or_reference, options)
+          build_credit_card_request(action, money, payflow_credit_card, options)
         end
       end
     end
 
-    def build_sale_or_authorization_request(action, money, credit_card_or_reference, options)
-      if credit_card_or_reference.is_a?(String)
-        build_reference_request(action, money, credit_card_or_reference, options)
+    def build_sale_or_authorization_request(action, money, payflow_credit_card, options)
+      if payflow_credit_card.is_a?(String)
+        build_reference_request(action, money, payflow_credit_card, options)
       else
-        build_credit_card_request(action, money, credit_card_or_reference, options)
+        build_credit_card_request(action, money, payflow_credit_card, options)
       end
     end
 

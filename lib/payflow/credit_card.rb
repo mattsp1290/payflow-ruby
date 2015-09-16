@@ -1,9 +1,10 @@
 require 'active_model'
+require 'credit_card_validator'
 
 module Payflow
   class CreditCard
     include ActiveModel::Validations
-    validates_with CreditCardValidator
+    validates_with CustomCreditCardValidator
 
     attr_accessor :number
     attr_accessor :month
@@ -82,7 +83,14 @@ module Payflow
 
     private
       def set_brand(brand_designator)
-        self.brand = CreditCardValidator.brand(brand_designator)
+        self.brand = translate_card(CreditCardValidator::Validator.card_type(brand_designator))
+      end
+
+      def translate_card(card)
+        return :master if card == "master_card"
+        card.to_sym
+      rescue
+        ""
       end
 
       def parse_encryption
@@ -92,7 +100,7 @@ module Payflow
         self.mp = data[6]
         self.device_sn = data[7]
         self.ksn = data[9]
-   
+
         split = encrypted_track_data.slice(2, encrypted_track_data.length-2).split("^")
         set_brand(split[0]) if split[0]
         @last_four_digits = split[0].slice(-4, 4) if split[0]
