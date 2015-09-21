@@ -37,6 +37,32 @@ describe Payflow::Gateway do
     end
   end
 
+  describe "Storing a credit card for later use" do
+    it "should auth the card and then void the authorization" do
+      cc = {
+          number: "4111111111111111",
+          month: "1",
+          year: "2090"
+        }
+      gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
+      response = Payflow::MockResponse.new("")
+      gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
+      gateway.should_receive(:void).with(response.token).and_return(Payflow::MockResponse.new(""))
+      response = gateway.store_card(cc)
+      expect(response.successful?).to be_true
+    end
+
+
+    it "should handle failed auths" do
+      cc = {}
+      gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
+      response = Payflow::MockResponse.new("amt=.01")
+      gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
+      response = gateway.store_card(cc)
+      expect(response.successful?).to be_false
+    end
+  end
+
   describe "Initializing" do
     it "should require login" do
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password", partner: "partner"))

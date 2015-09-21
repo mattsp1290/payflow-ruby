@@ -48,6 +48,19 @@ module Payflow
       request(:void, nil, authorization, options).commit(options)
     end
 
+    def store_card(credit_card)
+      response = authorize(1,
+            credit_card,
+            { pairs: { comment1: "VERIFY" } }
+      )
+
+      if response.successful?
+        void(response.token)
+      end
+
+      response
+    end
+
     private
       def self.requires!(object, *required_fields)
         required_fields.each do |field|
