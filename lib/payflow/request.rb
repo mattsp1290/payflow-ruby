@@ -16,7 +16,8 @@ module Payflow
     :authorization  => "A",
     :capture        => "D",
     :void           => "V",
-    :credit         => "C"
+    :credit         => "C",
+    :inquire        => "I"
   }
 
   DEFAULT_CURRENCY = "USD"
@@ -39,15 +40,17 @@ module Payflow
     def initialize(action, money, payflow_credit_card, _options = {})
       self.options = _options
       money = cast_amount(money)
-      
+
       self.pairs   = initial_pairs(action, money, options[:pairs])
-      
+
       case action
       when :sale, :authorization
         build_sale_or_authorization_request(action, money, payflow_credit_card, options)
       when :capture
         build_reference_request(action, money, payflow_credit_card, options)
       when :void
+        build_reference_request(action, money, payflow_credit_card, options)
+      when :inquire
         build_reference_request(action, money, payflow_credit_card, options)
       when :credit
         if payflow_credit_card.is_a?(String)
@@ -105,7 +108,7 @@ module Payflow
 
     def commit(options = {})
       nvp_body = build_request_body
-      
+
       return Payflow::MockResponse.new(nvp_body) if @options[:mock]
 
       response = connection.post do |request|
@@ -199,7 +202,7 @@ module Payflow
         add_authorization!
 
         pairs.marshal_dump.map{|key, value|
-          "#{key.to_s.upcase.gsub("_", "")}[#{value.to_s.length}]=#{value}" 
+          "#{key.to_s.upcase.gsub("_", "")}[#{value.to_s.length}]=#{value}"
         }.join("&")
       end
   end

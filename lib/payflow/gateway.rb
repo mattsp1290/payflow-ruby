@@ -1,5 +1,5 @@
 module Payflow
-  
+
   class Gateway
 
     attr_accessor :login, :partner, :password
@@ -46,6 +46,10 @@ module Payflow
 
     def void(authorization, options = {})
       request(:void, nil, authorization, options).commit(options)
+    end
+
+    def inquire(authorization, options = {})
+      request(:inquire, nil, authorization, options).commit(options)
     end
 
     def store_card(credit_card)
