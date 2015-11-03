@@ -49,7 +49,7 @@ describe Payflow::Gateway do
       gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
       gateway.should_receive(:void).with(response.token).and_return(Payflow::MockResponse.new(""))
       response = gateway.store_card(cc)
-      expect(response.successful?).to be_true
+      expect(response.successful?).to be(true)
     end
 
 
@@ -59,7 +59,7 @@ describe Payflow::Gateway do
       response = Payflow::MockResponse.new("amt=.01")
       gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
       response = gateway.store_card(cc)
-      expect(response.successful?).to be_false
+      expect(response.successful?).to be(false)
     end
   end
 

@@ -113,7 +113,7 @@ module Payflow
 
       response = connection.post do |request|
         add_common_headers!(request)
-        request.headers["X-VPS-REQUEST-ID"] = options[:order_id] || SecureRandom.base64(20)
+        request.headers["X-VPS-REQUEST-ID"] = options[:request_id] || SecureRandom.base64(20)
         request.body = nvp_body
       end
 
