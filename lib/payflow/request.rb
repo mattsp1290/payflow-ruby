@@ -131,7 +131,7 @@ module Payflow
       end
 
       def endpoint
-        "https://#{test? ? TEST_HOST : LIVE_HOST}"
+        ENV['PAYFLOW_ENDPOINT'] || "https://#{test? ? TEST_HOST : LIVE_HOST}"
       end
 
       def connection
