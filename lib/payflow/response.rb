@@ -19,6 +19,8 @@ module Payflow
       result[:pnref] || @result[:rpref]
     end
 
+    alias :token :authorization_token
+
     def avs_result
       result[:avsresult]
     end
