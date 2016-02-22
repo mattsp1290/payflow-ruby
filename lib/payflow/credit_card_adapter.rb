@@ -10,7 +10,7 @@ module Payflow
       return credit_card if credit_card.is_a?(String)
       return credit_card[:reference_id] if credit_card[:reference_id].present? # just a string
 
-      if payflow_encrypted? and !credit_card.magensa_encrypted?
+      if payflow_encrypted? and !magensa_encrypted?
         @payflow_card ||= encrypted_payflow_card
       else
         @payflow_card ||= unencrypted_payflow_card
