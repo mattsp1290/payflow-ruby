@@ -25,23 +25,23 @@ module Payflow
     end
 
     def authorize(money, credit_card_or_reference, options = {})
-      request(:authorization, money, credit_card_or_reference, options).commit(options)
+      request(:authorization, convert_money(money), credit_card_or_reference, options).commit(options)
     end
 
     def sale(money, credit_card_or_reference, options = {})
-      request(:sale, money, credit_card_or_reference, options).commit(options)
+      request(:sale, convert_money(money), credit_card_or_reference, options).commit(options)
     end
 
     def refund(money, reference, options = {})
-      request(:credit, money, reference, options).commit(options)
+      request(:credit, convert_money(money), reference, options).commit(options)
     end
 
     def credit(money, credit_card, options = {})
-      request(:credit, money, credit_card, options).commit(options)
+      request(:credit, convert_money(money), credit_card, options).commit(options)
     end
 
     def capture(money, authorization, options = {})
-      request(:capture, money, authorization, options).commit(options)
+      request(:capture, convert_money(money), authorization, options).commit(options)
     end
 
     def void(authorization, options = {})
@@ -53,7 +53,7 @@ module Payflow
     end
 
     def store_card(credit_card)
-      response = authorize(1,
+      response = authorize(100,
             credit_card,
             { pairs: { comment1: "VERIFY" } }
       )
@@ -71,6 +71,10 @@ module Payflow
           return false unless object.respond_to?(field)
         end
         true
+      end
+
+      def convert_money(amount)
+        (amount.to_f / 100).round(2)
       end
   end
 end

@@ -9,7 +9,7 @@ describe Payflow::Gateway do
 
       Payflow::Request.should_receive(:new).with(:sale, 10, cc, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
-      gateway.sale(10, {})
+      gateway.sale(1000, {})
     end
   end
 
@@ -19,7 +19,7 @@ describe Payflow::Gateway do
       allow(Payflow::CreditCard).to receive(:new).and_return(cc)
       Payflow::Request.should_receive(:new).with(:authorization, 10, cc, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
-      gateway.authorize(10, {})
+      gateway.authorize(1000, {})
     end
   end
 
@@ -29,7 +29,7 @@ describe Payflow::Gateway do
       allow(Payflow::CreditCard).to receive(:new).and_return(cc)
       Payflow::Request.should_receive(:new).with(:credit, 10, cc, {:login=>"login", :password=>"password", :partner=>"Partner"}).and_return(double(commit: Payflow::MockResponse.new("")))
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
-      gateway.credit(10, {
+      gateway.credit(1000, {
           number: "4111111111111111",
           month: "1",
           year: "2090"
@@ -46,7 +46,7 @@ describe Payflow::Gateway do
         }
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
       response = Payflow::MockResponse.new("")
-      gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
+      gateway.should_receive(:authorize).with(100, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
       gateway.should_receive(:void).with(response.token).and_return(Payflow::MockResponse.new(""))
       response = gateway.store_card(cc)
       expect(response.successful?).to be(true)
@@ -57,7 +57,7 @@ describe Payflow::Gateway do
       cc = {}
       gateway = Payflow::Gateway.new(OpenStruct.new(password: "password",  login: "login", partner: "Partner"))
       response = Payflow::MockResponse.new("amt=.01")
-      gateway.should_receive(:authorize).with(1, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
+      gateway.should_receive(:authorize).with(100, cc, { pairs: { comment1: "VERIFY" } }).and_return(response)
       response = gateway.store_card(cc)
       expect(response.successful?).to be(false)
     end
