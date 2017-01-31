@@ -14,10 +14,11 @@ Gem::Specification.new do |gem|
   gem.licenses      = "MIT"
 
   gem.add_dependency "activemodel", ">=3.1.12"
-  gem.add_dependency "nokogiri", "~>1.5.9"
   gem.add_dependency "builder", ">=3.0.0"
-  gem.add_dependency "faraday", "~>0.8.7"
   gem.add_dependency "credit_card_validator", "1.2.0"
+  gem.add_dependency "faraday", "~>0.8.7"
+  gem.add_dependency "nokogiri", "~>1.5.9"
+  gem.add_dependency "zipkin-tracer", "~>0.20.1"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
